@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Person;
+use App\Models\Sale;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Shoppy extends Model
+class SaleItem extends Model
 {
     use SoftDeletes, // Borrado suave
         HasFactory; // Generación de datos de prueba
 
     protected $fillable = [ // Atributos modificables (asignación masiva)
-        'person_id',
-        'INVOICE_CODE',
-        'date',
-        'image',
+        'sale_id',
+        'product_id',
+        'quantity',
+        'unit_price',
     ];
 
     protected $dates = ['deleted_at']; // Atributos que deben ser tratados como objetos Carbon
@@ -27,7 +27,10 @@ class Shoppy extends Model
     ];
 
      // RELACIONES
-     public function person(){ // Accede a la información de la persona asociada a este usuario
-        return $this->belongsTo(Person::class);
+     public function sale(){ // Accede a la información de la compra
+        return $this->belongsTo(Sale::class);
+    }
+    public function products(){ // Accede a la información del productos
+        return $this->belongsToMany(Product::class);
     }
 }

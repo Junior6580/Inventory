@@ -5,5 +5,5 @@
     </div>
     <!-- Default to the left -->
     <strong>Copyright &copy; <a
-            href="http://velamar.test:8081/">VELAMAR</a>.</strong>Todos los derechos reservados.
+            href="http://inventory.test:8081/">ALMACEN</a>.</strong>Todos los derechos reservados.
 </footer>

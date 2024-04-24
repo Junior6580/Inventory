@@ -7,16 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Shoppy extends Model
+class Employee extends Model
 {
     use SoftDeletes, // Borrado suave
         HasFactory; // Generación de datos de prueba
 
     protected $fillable = [ // Atributos modificables (asignación masiva)
         'person_id',
-        'INVOICE_CODE',
         'date',
-        'image',
+        'state',
     ];
 
     protected $dates = ['deleted_at']; // Atributos que deben ser tratados como objetos Carbon
@@ -27,7 +26,7 @@ class Shoppy extends Model
     ];
 
      // RELACIONES
-     public function person(){ // Accede a la información de la persona asociada a este usuario
+     public function people(){ // Accede a la información de la persona
         return $this->belongsTo(Person::class);
     }
 }

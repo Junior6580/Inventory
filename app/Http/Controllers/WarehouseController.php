@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
@@ -23,6 +24,8 @@ class WarehouseController extends Controller
      */
     public function index()
     {
-        return view('warehouses/index');
+        $warehouses = Warehouse::get();
+        $data = ['title' => 'Bodegas', 'warehouses' => $warehouses];
+        return view('warehouses/index', $data);
     }
 }
