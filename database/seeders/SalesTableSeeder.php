@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Client;
 use Illuminate\Database\Seeder;
 use App\Models\Sale;
 use App\Models\Person;
-use App\Models\Employee;
 use Faker\Factory as Faker;
 
 class SalesTableSeeder extends Seeder
@@ -16,33 +16,30 @@ class SalesTableSeeder extends Seeder
      * @return void
      */
     public function run()
-    {
-        // Obtener todas las personas y empleados existentes
+    {$faker = Faker::create();
+
+        // Obtener todas los clientes existentes en la base de datos
+        $clients = Client::all();
+
+        // Obtener todas las personas existentes en la base de datos
         $people = Person::all();
-        $employees = Employee::all();
 
-        // Crear un faker para datos aleatorios
-        $faker = Faker::create();
-
-        // Iterar para crear 50 ventas
-        for ($i = 0; $i < 50; $i++) {
-            // Seleccionar una persona y un empleado aleatorio
+        // Iterar para crear ventas de ejemplo
+        for ($i = 0; $i < 50; $i++) { // Supongamos que queremos crear 50 ventas
+            // Seleccionar una persona aleatoria como el vendedor
             $person = $people->random();
-            $employee = $employees->random();
 
-            // Crear un código de comprobante único (opcional)
-            $voucherCode = null;
-            do {
-                $voucherCode = $faker->unique()->randomNumber(6);
-            } while (Sale::where('voucher_code', $voucherCode)->exists());
+            // Seleccionar un cliente aleatorio
+            $client = $clients->random();
 
             // Crear una venta con datos aleatorios
             Sale::create([
                 'person_id' => $person->id,
-                'voucher_code' => $voucherCode,
+                'voucher_code' => $faker->unique()->numberBetween(1000, 9999), // Código de comprobante único aleatorio
                 'date' => $faker->date(),
-                'employee_id' => $employee->id,
+                'client_id' => $client->id, // Usar el ID del cliente seleccionado aleatoriamente
             ]);
         }
+
     }
 }

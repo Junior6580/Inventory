@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sale;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -23,6 +24,8 @@ class SaleController extends Controller
      */
     public function index()
     {
-        return view('sales/index');
+        $sales = Sale::get();
+        $data = ['title' => 'Compras', 'sales' => $sales];
+        return view('sales/index', $data);
     }
 }

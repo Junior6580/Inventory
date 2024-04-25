@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('person_id')->constrained()->onDelete('cascade');
             $table->unsignedInteger('voucher_code')->unique()->nullable();
             $table->date('date');
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $table->foreignId('client_id')->constrained()->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

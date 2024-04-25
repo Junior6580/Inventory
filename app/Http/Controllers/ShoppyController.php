@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Shoppy;
 use Illuminate\Http\Request;
 
 class ShoppyController extends Controller
@@ -23,6 +24,8 @@ class ShoppyController extends Controller
      */
     public function index()
     {
-        return view('shopping/index');
+        $shoppies = Shoppy::get();
+        $data = ['title' => 'Compras', 'shoppies' => $shoppies];
+        return view('shopping/index', $data);
     }
 }

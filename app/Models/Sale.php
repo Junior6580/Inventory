@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Employee;
+use App\Models\Person;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +29,7 @@ class Sale extends Model
 
     // RELACIONES
     public function people(){ // Accede a la información de la persona
-        return $this->belongsTo(Person::class);
+        return $this->belongsToMany(Person::class);
     }
     public function employees(){ // Accede a la información del empleado
         return $this->belongsTo(Employee::class);
