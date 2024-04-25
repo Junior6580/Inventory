@@ -16,7 +16,8 @@ class SalesTableSeeder extends Seeder
      * @return void
      */
     public function run()
-    {$faker = Faker::create();
+    {
+        $faker = Faker::create();
 
         // Obtener todas los clientes existentes en la base de datos
         $clients = Client::all();
@@ -32,14 +33,16 @@ class SalesTableSeeder extends Seeder
             // Seleccionar un cliente aleatorio
             $client = $clients->random();
 
+            // Generar una fecha aleatoria dentro del mes de abril de 2024
+            $date = $faker->dateTimeBetween('2024-04-01', '2024-04-30')->format('Y-m-d');
+
             // Crear una venta con datos aleatorios
             Sale::create([
                 'person_id' => $person->id,
                 'voucher_code' => $faker->unique()->numberBetween(1000, 9999), // Código de comprobante único aleatorio
-                'date' => $faker->date(),
+                'date' => $date, // Usar la fecha aleatoria generada
                 'client_id' => $client->id, // Usar el ID del cliente seleccionado aleatoriamente
             ]);
         }
-
     }
 }

@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\SaleItem;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -21,8 +26,35 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+        // Obtener el mes seleccionado o el mes actual si no se especifica
+        $selectedMonth = $request->input('month', Carbon::now()->format('m'));
+
+        // Obtener ventas del mes seleccionado
+        $sales = Sale::whereMonth('date', $selectedMonth)->get();
+
+        // Obtener todos los productos
+        $products = Product::all();
+
+        // Inicializar el array de ventas totales para cada producto
+        $productSalesTotal = [];
+
+        // Calcular la venta total de cada producto en el mes seleccionado
+        foreach ($products as $product) {
+            $totalSale = $sales->flatMap(function ($sale) use ($product) {
+                return $sale->items->where('product_id', $product->id)->sum(function ($item) {
+                    return $item->quantity * $item->unit_price;
+                });
+            })->sum();
+
+            $productSalesTotal[$product->name] = $totalSale;
+        }
+
+        // Ordenar los productos por venta total y tomar los 10 primeros
+        arsort($productSalesTotal);
+        $topProductsTotalSales = array_slice($productSalesTotal, 0, 10, true);
+
+        return view('home', compact('topProductsTotalSales', 'selectedMonth'));
     }
 }

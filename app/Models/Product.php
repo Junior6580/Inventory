@@ -43,6 +43,10 @@ class Product extends Model
 
     public function providers()
     { // Accede a la información del proveedor
-        return $this->belongsTo(Provider::class);
+        return $this->belongsToMany(Provider::class);
+    }
+
+    public function person(){ // Accede a la información de la persona
+        return $this->belongsTo(Person::class);
     }
 }

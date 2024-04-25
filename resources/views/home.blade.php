@@ -9,30 +9,23 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-chart-pie mr-1"></i>
-                        Ventas
+                        Venta total de productos en {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}
                     </h3>
                     <div class="card-tools">
-                        <ul class="nav nav-pills ml-auto">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut</a>
-                            </li>
-                        </ul>
+                        <form action="{{ route('home') }}" method="GET">
+                            <div class="input-group input-group-sm" style="width: 150px;">
+                                <input type="month" name="month" class="form-control" value="{{ $selectedMonth }}">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div><!-- /.card-header -->
                 <div class="card-body">
-                    <div class="tab-content p-0">
-                        <!-- Morris chart - Sales -->
-                        <div class="chart tab-pane active" id="revenue-chart"
-                             style="position: relative; height: 300px;">
-                            <canvas id="revenue-chart-canvas" height="300" style="height: 300px;"></canvas>
-                        </div>
-                        <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
-                            <canvas id="sales-chart-canvas" height="300" style="height: 300px;"></canvas>
-                        </div>
-                    </div>
+                    <canvas id="product-sales-chart" height="300"></canvas>
                 </div><!-- /.card-body -->
             </div>
             <!-- /.card -->
@@ -40,56 +33,40 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 <script>
-    // Script for drawing charts
     document.addEventListener('DOMContentLoaded', function () {
-        // Data for the charts
-        var revenueData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        // Obtener el canvas
+        var salesCanvas = document.getElementById('product-sales-chart');
+
+        // Datos para la gráfica
+        var productData = {
+            labels: {!! json_encode(array_keys($topProductsTotalSales)) !!},
             datasets: [{
-                label: 'Revenue',
+                label: 'Venta Total',
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
-                data: [10000, 20000, 15000, 25000, 18000, 22000, 30000]
+                data: {!! json_encode(array_values($topProductsTotalSales)) !!}
             }]
         };
 
-        var salesData = {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: 'Sales',
-                backgroundColor: ['red', 'blue', 'yellow', 'green', 'purple', 'orange'],
-                borderColor: 'white',
-                data: [12, 19, 3, 5, 2, 3]
-            }]
-        };
-
-        // Options for the charts
+        // Opciones de la gráfica
         var options = {
             scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+                y: {
+                    beginAtZero: true,
+                    callback: function (value, index, values) {
+                        return '$' + value; // Añadir símbolo de dólar al eje y
                     }
-                }]
+                }
             }
         };
 
-        // Get the canvas elements
-        var revenueCanvas = document.getElementById('revenue-chart-canvas');
-        var salesCanvas = document.getElementById('sales-chart-canvas');
-
-        // Create the charts
-        var revenueChart = new Chart(revenueCanvas, {
-            type: 'line',
-            data: revenueData,
-            options: options
-        });
-
+        // Crear la gráfica
         var salesChart = new Chart(salesCanvas, {
-            type: 'doughnut',
-            data: salesData,
+            type: 'bar',
+            data: productData,
             options: options
         });
     });
