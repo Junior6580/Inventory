@@ -30,7 +30,7 @@ class SaleItem extends Model
      public function sale(){ // Accede a la información de la compra
         return $this->belongsTo(Sale::class);
     }
-    public function products(){ // Accede a la información del productos
-        return $this->belongsToMany(Product::class);
+    public function product(){ // Accede a la información del productos
+        return $this->belongsTo(Product::class);
     }
 }

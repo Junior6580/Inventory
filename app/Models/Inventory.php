@@ -35,15 +35,15 @@ class Inventory extends Model
         $this->attributes['description'] = ucfirst($value);
     }
     // RELACIONES
-    public function people(){ // Accede a la información de la persona
+    public function person(){ // Accede a la información de la persona
         return $this->belongsTo(Person::class);
     }
 
-    public function warehouses(){ // Accede a la información de la persona
+    public function warehouse(){ // Accede a la información de la persona
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function products(){ // Accede a la información del productos
-        return $this->belongsToMany(Product::class);
+    public function product(){ // Accede a la información del productos
+        return $this->belongsTo(Product::class);
     }
 }

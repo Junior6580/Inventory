@@ -32,18 +32,18 @@ class Product extends Model
     ];
 
     // RELACIONES
-    public function measurement_units()
+    public function measurement_unit()
     { // Accede a la información de la persona
         return $this->belongsTo(MeasurementUnit::class);
     }
-    public function categories()
+    public function category()
     { // Accede a la información de la persona
         return $this->belongsTo(Category::class);
     }
 
-    public function providers()
+    public function provider()
     { // Accede a la información del proveedor
-        return $this->belongsToMany(Provider::class);
+        return $this->belongsTo(Provider::class);
     }
 
     public function person(){ // Accede a la información de la persona

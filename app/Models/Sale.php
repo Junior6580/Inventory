@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Client;
 use App\Models\Employee;
 use App\Models\Person;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ class Sale extends Model
         'person_id',
         'voucher_code',
         'date',
-        'person_id',
+        'client_id',
     ];
 
     protected $dates = ['deleted_at']; // Atributos que deben ser tratados como objetos Carbon
@@ -28,10 +29,21 @@ class Sale extends Model
     ];
 
     // RELACIONES
-    public function people(){ // Accede a la información de la persona
-        return $this->belongsToMany(Person::class);
+    public function person()
+    { // Accede a la información de la persona
+        return $this->belongsTo(Person::class);
     }
-    public function employees(){ // Accede a la información del empleado
+    public function client()
+    { // Accede a la información de la persona
+        return $this->belongsTo(Client::class);
+    }
+    public function employee()
+    { // Accede a la información del empleado
         return $this->belongsTo(Employee::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(SaleItem::class);
     }
 }

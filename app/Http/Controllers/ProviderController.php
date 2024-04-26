@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Person;
+use App\Models\Provider;
 use Illuminate\Http\Request;
 
 class ProviderController extends Controller
@@ -23,6 +25,8 @@ class ProviderController extends Controller
      */
     public function index()
     {
-        return view('providers/index');
+        $providers = Provider::get();
+        $data = ['title' => 'Proveedores', 'providers' => $providers];
+        return view('providers/index', $data);
     }
 }

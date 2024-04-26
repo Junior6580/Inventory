@@ -40,16 +40,22 @@ class HomeController extends Controller
         // Inicializar el array de ventas totales para cada producto
         $productSalesTotal = [];
 
-        // Calcular la venta total de cada producto en el mes seleccionado
-        foreach ($products as $product) {
-            $totalSale = $sales->flatMap(function ($sale) use ($product) {
-                return $sale->items->where('product_id', $product->id)->sum(function ($item) {
-                    return $item->quantity * $item->unit_price;
-                });
-            })->sum();
-
-            $productSalesTotal[$product->name] = $totalSale;
+       // Calcular la venta total de cada producto en el mes seleccionado
+foreach ($products as $product) {
+    $totalSale = $sales->flatMap(function ($sale) use ($product) {
+        // Check if $sale->items is not null before calling where() method
+        if ($sale->items) {
+            return $sale->items->where('product_id', $product->id)->sum(function ($item) {
+                return $item->quantity * $item->unit_price;
+            });
+        } else {
+            return 0; // Return 0 if $sale->items is null
         }
+    })->sum();
+
+    $productSalesTotal[$product->name] = $totalSale;
+}
+
 
         // Ordenar los productos por venta total y tomar los 10 primeros
         arsort($productSalesTotal);

@@ -8,7 +8,7 @@
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#"
                             class="text-decoration-none">ALMACEN</a></li>
-                    <li class="breadcrumb-item active"></li>
+                    <li class="breadcrumb-item active">{{ $title }}</li>
                 </ol>
             </div><!-- /.col -->
         </div><!-- /.row -->

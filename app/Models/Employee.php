@@ -26,7 +26,7 @@ class Employee extends Model
     ];
 
      // RELACIONES
-     public function people(){ // Accede a la información de la persona
+     public function person(){ // Accede a la información de la persona
         return $this->belongsTo(Person::class);
     }
 }

@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>ALMACEN | </title>
+    <title>ALMACEN | {{ $title }} </title>
 
     <link rel="icon" href="{{ asset('../AdminLTE/dist/img/AdminLTELogo.png') }}">
 

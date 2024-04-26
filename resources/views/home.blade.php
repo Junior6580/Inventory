@@ -9,7 +9,7 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-chart-pie mr-1"></i>
-                        Venta total de productos en {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}
+                        Venta total de productos en {{ \Carbon\Carbon::parse(date('Y').'-'.$selectedMonth.'-01')->format('F Y') }}
                     </h3>
                     <div class="card-tools">
                         <form action="{{ route('home') }}" method="GET">

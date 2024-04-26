@@ -24,7 +24,7 @@ class Position extends Model
     ];
 
     //RELACIONES
-    public function positions(){ // Accede a la información de los productos
+    public function position(){ // Accede a la información de los productos
         return $this->belongsTo(\App\Models\Position::class);
     }
 }
