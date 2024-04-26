@@ -33,7 +33,9 @@ Route::get('/providers', [ProviderController::class, 'index'])->name('providers'
 Route::get('/shopping', [ShoppyController::class, 'index'])->name('shopping');
 
 Route::get('/sales', [SaleController::class, 'index'])->name('sales');
-Route::get('/ruta/para/generar/pdf', [SaleController::class, 'generatePDF'])->name('generatePDF');
+Route::get('sales/generatePDF/{saleId}', [SaleController::class, 'generatePDF'])->name('generatePDF');
+Route::get('sales/report', [SaleController::class, 'generateReport'])->name('generateReport');
+
 
 
 Route::get('/configuration', [ConfigurationController::class, 'index'])->name('configuration');

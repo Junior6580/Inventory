@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Client;
 use App\Models\Sale;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,5 +33,9 @@ class SaleItem extends Model
     }
     public function product(){ // Accede a la información del productos
         return $this->belongsTo(Product::class);
+    }
+
+    public function client(){ // Accede a la información del productos
+        return $this->belongsTo(Client::class);
     }
 }
