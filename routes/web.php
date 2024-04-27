@@ -38,6 +38,7 @@ Route::get('sales/report', [SaleController::class, 'generateReport'])->name('gen
 Route::get('/sales/new', [SaleController::class, 'new'])->name('sale.new');
 Route::get('/products/search/{name}', [SaleController::class, 'searchByName']);
 Route::post('/sales/saved', [SaleController::class, 'saved'])->name('sale.saved');
+Route::get('/sales/filter', [SaleController::class, 'filterSalesByDate'])->name('sales.filterByDate');
 
 
 

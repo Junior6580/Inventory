@@ -77,7 +77,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('sales') }}" class="nav-link  @if (Route::is('sales')) active @endif">
+                    <a href="{{ route('sales') }}" class="nav-link  @if (Route::is('sales')) active @endif @if (Route::is('sales.filterByDate')) active @endif">
                         <i class="nav-icon fas fa-piggy-bank"></i>
                         <p>Ventas</p>
                     </a>

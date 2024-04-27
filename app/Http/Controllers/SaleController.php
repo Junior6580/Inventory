@@ -33,6 +33,21 @@ class SaleController extends Controller
         return view('sales/index', $data);
     }
 
+    public function filterSalesByDate(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Si no se proporcionan fechas, obtener todas las ventas
+        if (!$startDate || !$endDate) {
+            return $this->index();
+        }
+
+        $sales = Sale::whereBetween('date', [$startDate, $endDate])->get();
+
+        return view('sales.index', ['title' => 'Ventas', 'sales' => $sales]);
+    }
+
     public function generateReport()
     {
         $sales = Sale::all();
@@ -42,7 +57,6 @@ class SaleController extends Controller
         $pdf->SetTitle($title);
 
         $pdf->SetFont('helvetica', '', 10);
-        $pdf->AddPage();
 
         // Customizable colors (replace with your desired hex codes)
         $primaryColor = '#A9CCFF'; // Teal blue
@@ -54,15 +68,23 @@ class SaleController extends Controller
         $cellStyle = 'border: 1px solid ' . $primaryColor . '; text-align: center; padding: 8px;';
         $headerCellStyle = 'border: 1px solid ' . $primaryColor . '; text-align: center; padding: 8px; font-weight: bold; color: ' . $textColor . '; background-color: ' . $primaryColor . ';';
 
+        $pdf->AddPage(); // Add the first page
+
+        $counter = 0; // Initialize counter
+
         // Iterate over each sale
         foreach ($sales as $sale) {
+            if ($counter % 2 == 0 && $counter != 0) {
+                $pdf->AddPage(); // Add a new page for every two sales
+            }
+
             $html = '<table style="' . $tableStyle . '">';
-            $html .= '<tr><th colspan="2" style="' . $headerCellStyle . '"><h3>Factura de Venta</h3></th></tr>';
-            $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
-            $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
-            $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Responsable:</strong> ' . $sale->person->full_name . '</td></tr>';
-            $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Fecha:</strong> ' . $sale->date . '</td></tr>';
-            $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Productos Vendidos:</strong></td></tr>';
+            $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h3>Factura de Venta</h3></th></tr>';
+            $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
+            $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
+            $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Responsable:</strong> ' . $sale->person->full_name . '</td></tr>';
+            $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Fecha:</strong> ' . $sale->date . '</td></tr>';
+            $html .= '<tr><th style="' . $headerCellStyle . '"><strong>Producto</strong></th><th style="' . $headerCellStyle . '"><strong>Cantidad</strong></th><th style="' . $headerCellStyle . '"><strong>Precio Unitario</strong></th><th style="' . $headerCellStyle . '"><strong>Subtotal</strong></th></tr>';
 
             $totalSale = 0; // Initialize total for this sale
 
@@ -70,24 +92,33 @@ class SaleController extends Controller
             foreach ($sale->items as $item) {
                 $html .= '<tr>';
                 $html .= '<td style="' . $cellStyle . '">' . $item->product->name . '</td>';
-                $html .= '<td style="' . $cellStyle . '">Cantidad: ' . $item->quantity . '</td>';
+                $html .= '<td style="' . $cellStyle . '">' . $item->quantity . '</td>';
+                $html .= '<td style="' . $cellStyle . '">' . number_format($item->unit_price, 2) . '</td>'; // Display unit price
+
+                // Calculate subtotal for the item
+                $subtotal = $item->quantity * $item->unit_price;
+                $html .= '<td style="' . $cellStyle . '">' . number_format($subtotal, 2) . '</td>'; // Display subtotal
+
                 $html .= '</tr>';
 
                 // Calculate total for each product and add to the total for this sale
-                $totalSale += $item->quantity * $item->unit_price;
+                $totalSale += $subtotal;
             }
 
             // Add total for this sale
-            $html .= '<tr><td colspan="2" style="' . $headerCellStyle . '"><strong>Total:</strong> ' . number_format($totalSale, 2) . '</td></tr>';
+            $html .= '<tr><td colspan="3" style="' . $headerCellStyle . '"></td>';
+            $html .= '<td style="' . $cellStyle . '" colspan="2"><strong>Total:</strong> ' . number_format($totalSale, 2) . '</td></tr>';
 
             $html .= '</table>';
 
             $pdf->writeHTML($html, true, false, true, false, '');
-            $pdf->AddPage(); // Add a new page for each sale
+
+            $counter++; // Increment counter
         }
 
         $pdf->Output('reporte_ventas.pdf', 'I');
     }
+
 
     public function generatePDF($saleId)
     {
@@ -123,13 +154,13 @@ class SaleController extends Controller
         $headerCellStyle = 'border: 1px solid ' . $primaryColor . '; text-align: center; padding: 8px; font-weight: bold; color: ' . $textColor . '; background-color: ' . $primaryColor . ';';
 
         $html = '<table style="' . $tableStyle . '">';
-        $html .= '<tr><th colspan="3" style="' . $headerCellStyle . '"><h3>COMERCIALIZADORA VELAMAR S.A.S HOBO - HUILA <br> NIT: 900775258-3 </h3></th></tr>';
-        $html .= '<tr><th colspan="3" style="' . $headerCellStyle . '"><h4>Factura - ' . date('Y-m-d h:i:s A') . '</h4></th></tr>';
-        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
-        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
-        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Vendedor:</strong> ' . $sale->person->full_name . '</td></tr>';
-        $html .= '<tr><td colspan="3" style="' . $cellStyle . '">' . $sale->person->document_type . ' ' . $sale->person->document_number . '</td></tr>';
-        $html .= '<tr><th style="' . $headerCellStyle . '"><strong>Productos:</strong></th><th style="' . $headerCellStyle . '"><strong>Cantidad:</strong></th><th style="' . $headerCellStyle . '"><strong>Precio Unitario:</strong></th></tr>';
+        $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h3>COMERCIALIZADORA VELAMAR S.A.S HOBO - HUILA <br> NIT: 900775258-3 </h3></th></tr>';
+        $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h4>Factura - ' . date('Y-m-d h:i:s A') . '</h4></th></tr>';
+        $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
+        $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
+        $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Vendedor:</strong> ' . $sale->person->full_name . '</td></tr>';
+        $html .= '<tr><td colspan="4" style="' . $cellStyle . '">' . $sale->person->document_type . ' ' . $sale->person->document_number . '</td></tr>';
+        $html .= '<tr><th style="' . $headerCellStyle . '"><strong>Productos:</strong></th><th style="' . $headerCellStyle . '"><strong>Cantidad:</strong></th><th style="' . $headerCellStyle . '"><strong>Precio Unitario:</strong></th><th style="' . $headerCellStyle . '"><strong>Subtotal:</strong></th></tr>';
 
         $total = 0;
         foreach ($sale->items as $item) {
@@ -137,23 +168,27 @@ class SaleController extends Controller
             $html .= '<td style="' . $cellStyle . '">' . $item->product->name . '</td>';
             $html .= '<td style="' . $cellStyle . '">' . $item->quantity . '</td>';
             $html .= '<td style="' . $cellStyle . '">' . number_format($item->unit_price, 2) . '</td>'; // Display unit price
+
+            // Calculate subtotal for the item
+            $subtotal = $item->quantity * $item->unit_price;
+            $html .= '<td style="' . $cellStyle . '">' . number_format($subtotal, 2) . '</td>'; // Display subtotal
+
             $html .= '</tr>';
-            $total += $item->quantity * $item->unit_price;
+            $total += $subtotal;
 
             if ($pdf->getY() + 10 > $pageHeight) {
                 $pdf->AddPage();
             }
         }
 
-        $html .= '<tr><td colspan="3" style="' . $headerCellStyle . '"><strong>Total:</strong> ' . number_format($total, 2) . '</td></tr>';
-
+        $html .= '<tr><td colspan="3" style="' . $headerCellStyle . '"><strong>Total:</strong></td>';
+        $html .= '<td style="' . $cellStyle . '">' . number_format($total, 2) . '</td></tr>';
         $html .= '</table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
         $filename = 'factura_' . $sale->client->person->first_name . '.pdf';
         $pdf->Output($filename, 'I');
-
     }
 
     public function new()
@@ -210,7 +245,7 @@ class SaleController extends Controller
         }
 
         return redirect()->route('sales')->with('success', 'Venta registrada exitosamente');
-
     }
-}
 
+
+}
