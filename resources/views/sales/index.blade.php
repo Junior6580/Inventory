@@ -9,16 +9,17 @@
                 <div class="card-body">
                     <a href="{{ route('generateReport') }}" class="btn btn-primary" target="_blank">Generar Reporte</a>
                     <br><br>
-                    <table id="datatable" class="table table-striped table-bordered">
+                    <table id="inventory" class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th style="width: 15px;">#</th>
                                 <th>Responsable</th>
-                                <th>COD. Vale</th>
+                                <th>Código</th>
                                 <th>Fecha</th>
                                 <th>Cliente</th>
                                 <th>Productos Vendidos</th>
-                                <th>Acciones</th>
+                                <th>Factura</th>
+                                <th>  <a href="{{ route('sale.new') }}" class="btn btn-success"><i class="fas fa-cart-plus"></i></a></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -37,7 +38,9 @@
                                         </ul>
                                     </td>
                                     <td>
-                                        <a href="{{ route('generatePDF', $sale->id) }}" class="btn btn-primary" target="_blank">Generar Factura</a>
+                                        <a href="{{ route('generatePDF', $sale->id) }}" class="btn btn-info" target="_blank"><i class="fas fa-receipt"></i></a>
+                                    </td>
+                                    <td>
                                     </td>
                                 </tr>
                             @endforeach

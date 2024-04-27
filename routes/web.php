@@ -35,6 +35,11 @@ Route::get('/shopping', [ShoppyController::class, 'index'])->name('shopping');
 Route::get('/sales', [SaleController::class, 'index'])->name('sales');
 Route::get('sales/generatePDF/{saleId}', [SaleController::class, 'generatePDF'])->name('generatePDF');
 Route::get('sales/report', [SaleController::class, 'generateReport'])->name('generateReport');
+Route::get('/sales/new', [SaleController::class, 'new'])->name('sale.new');
+Route::get('/products/search/{name}', [SaleController::class, 'searchByName']);
+Route::post('/sales/saved', [SaleController::class, 'saved'])->name('sale.saved');
+
+
 
 
 

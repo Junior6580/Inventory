@@ -103,6 +103,7 @@
         }).buttons().container().appendTo('#datatable_wrapper .col-md-6:eq(0)');
     });
 </script>
+
 <!-- Datatable del invetario -->
 <script>
     $(document).ready(function() {
@@ -121,7 +122,7 @@
     <script>
         Swal.fire({
             icon: 'success',
-            title: "{{ trans('senaempresa::menu.Success') }}",
+            title: "Exito",
             text: '{{ session('success') }}',
             showConfirmButton: false,
             timer: 4000 // Tiempo en milisegundos (2 segundos en este caso)Mistake
@@ -133,7 +134,7 @@
     <script>
         Swal.fire({
             icon: 'error',
-            title: "{{ trans('senaempresa::menu.Mistake') }}",
+            title: "Error",
             text: '{{ session('error') }}',
             showConfirmButton: false,
             timer: 4000 // Tiempo en milisegundos (2 segundos en este caso)

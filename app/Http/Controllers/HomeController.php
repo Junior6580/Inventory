@@ -61,6 +61,8 @@ foreach ($products as $product) {
         arsort($productSalesTotal);
         $topProductsTotalSales = array_slice($productSalesTotal, 0, 10, true);
 
-        return view('home', compact('topProductsTotalSales', 'selectedMonth'));
+        $data = ['title' => 'Inicio', 'selectedMonth' => $selectedMonth, 'topProductsTotalSales' => $topProductsTotalSales];
+
+        return view('home', $data);
     }
 }

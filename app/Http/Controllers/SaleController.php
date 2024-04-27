@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use TCPDF;
 
@@ -120,19 +123,20 @@ class SaleController extends Controller
         $headerCellStyle = 'border: 1px solid ' . $primaryColor . '; text-align: center; padding: 8px; font-weight: bold; color: ' . $textColor . '; background-color: ' . $primaryColor . ';';
 
         $html = '<table style="' . $tableStyle . '">';
-        $html .= '<tr><th colspan="2" style="' . $headerCellStyle . '"><h3>COMERCIALIZADORA VELAMAR S.A.S HOBO - HUILA <br> NIT: 900775258-3 </h3></th></tr>';
-        $html .= '<tr><th colspan="2" style="' . $headerCellStyle . '"><h4>Factura - ' . date('Y-m-d h:i:s A') . '</h4></th></tr>';
-        $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
-        $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
-        $html .= '<tr><td colspan="2" style="' . $cellStyle . '"><strong>Vendedor:</strong> ' . $sale->person->full_name . '</td></tr>';
-        $html .= '<tr><td colspan="2" style="' . $cellStyle . '">' . $sale->person->document_type . ' ' . $sale->person->document_number . '</td></tr>';
-        $html .= '<tr><th style="' . $headerCellStyle . '"><strong>Productos:</strong></th><th style="' . $headerCellStyle . '"><strong>Cantidad:</strong></th></tr>';
+        $html .= '<tr><th colspan="3" style="' . $headerCellStyle . '"><h3>COMERCIALIZADORA VELAMAR S.A.S HOBO - HUILA <br> NIT: 900775258-3 </h3></th></tr>';
+        $html .= '<tr><th colspan="3" style="' . $headerCellStyle . '"><h4>Factura - ' . date('Y-m-d h:i:s A') . '</h4></th></tr>';
+        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
+        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
+        $html .= '<tr><td colspan="3" style="' . $cellStyle . '"><strong>Vendedor:</strong> ' . $sale->person->full_name . '</td></tr>';
+        $html .= '<tr><td colspan="3" style="' . $cellStyle . '">' . $sale->person->document_type . ' ' . $sale->person->document_number . '</td></tr>';
+        $html .= '<tr><th style="' . $headerCellStyle . '"><strong>Productos:</strong></th><th style="' . $headerCellStyle . '"><strong>Cantidad:</strong></th><th style="' . $headerCellStyle . '"><strong>Precio Unitario:</strong></th></tr>';
 
         $total = 0;
         foreach ($sale->items as $item) {
             $html .= '<tr>';
             $html .= '<td style="' . $cellStyle . '">' . $item->product->name . '</td>';
             $html .= '<td style="' . $cellStyle . '">' . $item->quantity . '</td>';
+            $html .= '<td style="' . $cellStyle . '">' . number_format($item->unit_price, 2) . '</td>'; // Display unit price
             $html .= '</tr>';
             $total += $item->quantity * $item->unit_price;
 
@@ -141,7 +145,7 @@ class SaleController extends Controller
             }
         }
 
-        $html .= '<tr><td colspan="2" style="' . $headerCellStyle . '"><strong>Total:</strong> ' . number_format($total, 2) . '</td></tr>';
+        $html .= '<tr><td colspan="3" style="' . $headerCellStyle . '"><strong>Total:</strong> ' . number_format($total, 2) . '</td></tr>';
 
         $html .= '</table>';
 
@@ -149,5 +153,64 @@ class SaleController extends Controller
 
         $filename = 'factura_' . $sale->client->person->first_name . '.pdf';
         $pdf->Output($filename, 'I');
+
+    }
+
+    public function new()
+    {
+        $clients = \App\Models\Client::get();
+        $products = Product::get();
+        $data = ['title' => 'Nueva Venta', 'clients' => $clients, 'products' => $products];
+        return view('sales/new', $data);
+    }
+    public function searchByName($name)
+    {
+        $product = Product::where('name', 'like', "%$name%")->first();
+
+        if ($product) {
+            return response()->json(['price' => $product->price]);
+        } else {
+            return response()->json(['price' => null]);
+        }
+    }
+
+    public function saved(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'voucher_code' => 'required|unique:sales,voucher_code',
+            'date' => 'required|date',
+            'client_id' => 'required|exists:clients,id',
+            'product_id' => 'required|array', // Ensure product_id is an array
+            'product_id.*' => 'required|exists:products,id', // Validate each product_id
+            'quantity' => 'required|array', // Ensure quantity is an array
+            'quantity.*' => 'required|numeric|min:1', // Validate each quantity
+        ]);
+
+        // Create a new Sale instance and save it
+        $sale = new Sale();
+        $sale->person_id = $request->person_id;
+        $sale->voucher_code = $request->voucher_code;
+        $sale->date = $request->date;
+        $sale->client_id = $request->client_id;
+        $sale->save();
+
+        // Save the sale items (products)
+        $products = [];
+        for ($i = 0; $i < count($request->product_id); $i++) {
+            $product = new SaleItem();
+            $product->sale_id = $sale->id; // Associate the product with the sale
+            $product->product_id = $request->product_id[$i];
+            $product->quantity = $request->quantity[$i];
+            // Fetch the unit price of the product and calculate the total price
+            $unitPrice = Product::findOrFail($request->product_id[$i])->price;
+            $product->unit_price = $unitPrice;
+            $product->save();
+            $products[] = $product;
+        }
+
+        return redirect()->route('sales')->with('success', 'Venta registrada exitosamente');
+
     }
 }
+
