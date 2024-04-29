@@ -29,7 +29,7 @@
                                 <label for="client_id" class="form-label">Buscar cliente por número de documento</label>
                                 <input type="text" class="form-control" id="search-input" name="search-input"
                                     placeholder="Ingresar número o nombre">
-                                <select class="form-control" name="client_id" aria-label="Selecciona un Aprendiz"
+                                <select class="form-control" name="client_id" aria-label="Selecciona un Cliente"
                                     id="client-select" multiple="multiple" required>
                                     @foreach ($clients as $client)
                                         <option value="{{ $client->id }}">
@@ -41,8 +41,10 @@
                             <div id="item-container">
                                 <div class="mb-3">
                                     <label for="product_id" class="form-label">Buscar producto por nombre</label>
-                                    <input type="text" class="form-control product-search" placeholder="Ingresar nombre del producto">
-                                    <select class="form-control product-select" name="product_id[]" multiple="multiple" required>
+                                    <input type="text" class="form-control product-search"
+                                        placeholder="Ingresar nombre del producto">
+                                    <select class="form-control product-select" name="product_id[]" multiple="multiple"
+                                        required>
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" data-price="{{ $product->price }}">
                                                 {{ $product->name }}
@@ -69,7 +71,25 @@
     </div>
 
     <script>
-        // Function to apply product search in text input elements and hide selected options
+        // Función para aplicar la búsqueda de producto por nombre en todos los select
+        function applyProductSearchAll(input) {
+            const searchText = input.value.trim().toLowerCase();
+            const productSelects = document.querySelectorAll('.product-select');
+
+            productSelects.forEach(function(select) {
+                const selectedOptions = Array.from(select.selectedOptions);
+                const selectedValues = selectedOptions.map(option => option.value);
+
+                for (let option of select.options) {
+                    const optionText = option.text.toLowerCase();
+                    const isMatch = optionText.includes(searchText);
+                    const isSelected = selectedValues.includes(option.value);
+                    option.hidden = !isMatch || isSelected;
+                }
+            });
+        }
+
+        // Función para aplicar la búsqueda de producto por nombre y ocultar opciones seleccionadas
         function applyProductSearch(input) {
             const searchText = input.value.trim().toLowerCase();
             const select = input.nextElementSibling;
@@ -82,7 +102,7 @@
             }
         }
 
-        // Function to load the unit price based on the selected product
+        // Función para cargar el precio unitario basado en el producto seleccionado
         function loadUnitPrice(select) {
             const selectedOptions = Array.from(select.selectedOptions);
             const prices = selectedOptions.map(option => parseFloat(option.getAttribute('data-price')));
@@ -90,7 +110,7 @@
             select.parentNode.nextElementSibling.querySelector('.price').value = totalPrice.toFixed(2);
         }
 
-        // Function to add a new item element
+        // Función para agregar un nuevo elemento
         function addItem() {
             const newItem = document.createElement('div');
             newItem.classList.add('item', 'mb-3');
@@ -131,24 +151,42 @@
             loadUnitPrice(productSelect);
         }
 
-        // Event listener for the add item button
+        // Event listener para el botón de agregar ítem
         document.getElementById("add-item").addEventListener("click", function() {
             addItem();
         });
 
-        // Event listener for removing items
+        // Event listener para eliminar ítems
         document.getElementById("item-container").addEventListener("click", function(e) {
             if (e.target && e.target.classList.contains("remove-item")) {
                 e.target.parentNode.remove();
             }
         });
 
-        // Event listener for changing product selection
+        // Event listener para cambiar la selección de producto
         document.querySelectorAll('.product-select').forEach(function(select) {
             select.addEventListener("change", function() {
                 loadUnitPrice(this);
             });
         });
 
+        // Event listener para el campo de búsqueda de producto
+        document.querySelectorAll('.product-search').forEach(function(input) {
+            input.addEventListener("input", function() {
+                applyProductSearchAll(this);
+            });
+        });
+
+        // Event listener para el campo de búsqueda de cliente
+        document.getElementById("search-input").addEventListener("input", function() {
+            const searchText = this.value.trim().toLowerCase();
+            const clientSelect = document.getElementById("client-select");
+
+            for (let option of clientSelect.options) {
+                const optionText = option.text.toLowerCase();
+                const isMatch = optionText.includes(searchText);
+                option.hidden = !isMatch;
+            }
+        });
     </script>
 @endsection

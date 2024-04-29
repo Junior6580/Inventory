@@ -7,7 +7,8 @@
         <div class="col-md-12">
             <div class="card card-primary card-outline shadow">
                 <div class="card-body">
-                    <a href="{{ route('generateReport') }}" class="btn btn-primary" target="_blank">Generar Reporte</a>
+                    <a href="{{ route('generateReport', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn btn-primary" target="_blank">Generar Reporte</a>
+
                     <br><br>
                     <div class="row">
 

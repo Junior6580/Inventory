@@ -28,8 +28,10 @@ class SaleController extends Controller
      */
     public function index()
     {
+        $startDate = null;
+        $endDate = null;
         $sales = Sale::get();
-        $data = ['title' => 'Ventas', 'sales' => $sales];
+        $data = ['title' => 'Ventas', 'sales' => $sales, 'startDate' => $startDate, 'endDate' => $endDate];
         return view('sales/index', $data);
     }
 
@@ -38,22 +40,44 @@ class SaleController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Si no se proporcionan fechas, obtener todas las ventas
+        // Obtener todas las ventas si no se proporcionan fechas
         if (!$startDate || !$endDate) {
             return $this->index();
         }
 
+        // Obtener las ventas filtradas por fecha
         $sales = Sale::whereBetween('date', [$startDate, $endDate])->get();
 
-        return view('sales.index', ['title' => 'Ventas', 'sales' => $sales]);
+        // Regresar la vista con las ventas filtradas
+        $data = [
+            'title' => 'Ventas',
+            'sales' => $sales,
+            'startDate' => $startDate, // Pasar las fechas al contexto de la vista
+            'endDate' => $endDate,
+        ];
+        return view('sales.index', $data);
     }
 
-    public function generateReport()
+
+    public function generateReport(Request $request)
     {
-        $sales = Sale::all();
+        $startDate = null;
+        $endDate = null;
+        // Obtener los filtros aplicados
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Aplicar los filtros si están presentes
+        $query = Sale::query();
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        // Obtener las ventas filtradas
+        $sales = $query->get();
         $pdf = new TCPDF('P', 'mm', 'UTF-8', true);
 
-        $title = 'Reporte de Ventas - ' . date('Y-m-d h:i:s A');
+        $title = 'Reporte de Ventas - ' . date('Y-m-d');
         $pdf->SetTitle($title);
 
         $pdf->SetFont('helvetica', '', 10);
@@ -116,7 +140,7 @@ class SaleController extends Controller
             $counter++; // Increment counter
         }
 
-        $pdf->Output('reporte_ventas.pdf', 'I');
+        $pdf->Output('I');
     }
 
 
@@ -126,7 +150,7 @@ class SaleController extends Controller
 
         $pdf = new TCPDF('P', 'mm', 'UTF-8', true);
 
-        $title = 'Factura - ' . $sale->date;
+        $title = 'Factura - ' . date('Y-m-d');
         $pdf->SetTitle($title);
 
         // Customizable colors (replace with your desired hex codes)
@@ -155,7 +179,7 @@ class SaleController extends Controller
 
         $html = '<table style="' . $tableStyle . '">';
         $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h3>COMERCIALIZADORA VELAMAR S.A.S HOBO - HUILA <br> NIT: 900775258-3 </h3></th></tr>';
-        $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h4>Factura - ' . date('Y-m-d h:i:s A') . '</h4></th></tr>';
+        $html .= '<tr><th colspan="4" style="' . $headerCellStyle . '"><h4>Factura - ' . $sale->date . '</h4></th></tr>';
         $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Cliente:</strong> ' . $sale->client->person->full_name . '</td></tr>';
         $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Código:</strong> ' . $sale->voucher_code . '</td></tr>';
         $html .= '<tr><td colspan="4" style="' . $cellStyle . '"><strong>Vendedor:</strong> ' . $sale->person->full_name . '</td></tr>';
@@ -187,7 +211,7 @@ class SaleController extends Controller
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $filename = 'factura_' . $sale->client->person->first_name . '.pdf';
+        $filename = 'factura_' . $sale->client->person->document_number . '.pdf';
         $pdf->Output($filename, 'I');
     }
 
@@ -246,6 +270,4 @@ class SaleController extends Controller
 
         return redirect()->route('sales')->with('success', 'Venta registrada exitosamente');
     }
-
-
 }
