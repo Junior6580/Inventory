@@ -28,4 +28,16 @@ class WarehouseController extends Controller
         $data = ['title' => 'Bodegas', 'warehouses' => $warehouses];
         return view('warehouses/index', $data);
     }
+
+
+    /**
+     * Show the form for creating a new category.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function new()
+    {
+        $data = ['title' => 'Nueva Bodega'];
+        return view('warehouses.new', $data);
+    }
 }
